@@ -7,7 +7,7 @@ import Web.Scotty.Trans
 import Utils.Utils (logger)
 import Test.Tasty.Options (safeRead)
 import qualified Data.Text as T
-import Network.HTTP.Types.Status ( notFound404 )
+import Network.HTTP.Types.Status ( notFound404, status201 )
 
 
 runWebServer :: IO ()
@@ -21,17 +21,20 @@ runWebServer = do
 routes :: (MonadIO m, MonadUnliftIO m) => ScottyT m ()
 routes = do
   get "/" home
+
   get "/snippet/view/:idx" $ do
     idx <- captureParam "idx"
     snippetView idx
+
   get "/snippet/create" snippetCreate
 
+  post "/snippet/create" snippetCreatePost
 
 
 home :: MonadIO m => ActionT m ()
 home = do
+  addHeader "Server" "Haskell Scotty"
   text "Hello from Snippetbox"
-
 
 
 snippetView :: MonadIO m => Text -> ActionT m ()
@@ -47,3 +50,8 @@ snippetCreate :: MonadIO m => ActionT m ()
 snippetCreate = do
   text "Display a form for creating a new snippet..."
 
+
+snippetCreatePost :: MonadIO m => ActionT m ()
+snippetCreatePost = do
+  status status201
+  text "Save a new snippet..."

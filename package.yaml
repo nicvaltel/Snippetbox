@@ -34,13 +34,14 @@ dependencies:
 - wai-extra
 - wai-middleware-static
 - optparse-applicative
-
+- katip
 
 default-extensions:
 - NoImplicitPrelude
 - OverloadedStrings
 - ScopedTypeVariables
 - NamedFieldPuns
+- TemplateHaskell
 
 ghc-options:
 - -Wall

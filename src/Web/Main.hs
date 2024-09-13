@@ -6,12 +6,14 @@ import Web.Scotty.Trans
 import Utils.Utils (logger)
 import Web.Handlers ( home, snippetView, snippetCreate, snippetCreatePost )
 import Network.Wai.Middleware.Static (addBase, staticPolicy)
+import Katip ( KatipContext, ls, logTM, Severity(InfoS) )
 
 type Port = Int
 
-runWebServer :: Port -> IO ()
+runWebServer :: (KatipContext m) => Port -> m ()
 runWebServer port = do
-  logger $ "starting server on :" <> tshow port
+  $(logTM) InfoS $ ls ("starting server on :" <> tshow port)
+  liftIO $ logger $ "starting server on :" <> tshow port
   scottyT port id routes
 
 

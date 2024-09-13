@@ -5,6 +5,7 @@ import Web.Main
 import Options.Applicative
 import qualified Data.Text as T
 import Test.Tasty.Options (safeRead)
+import Katip
 
 
 data Params = Params 
@@ -23,6 +24,20 @@ cmdLineParser = execParser opts
     opts = info (mkParams <**> helper)
                 (fullDesc <> progDesc "Snippetbox server powered by Haskell")
 
+
+runKatip :: KatipContextT IO a -> IO a
+runKatip app = withKatip $ \le ->
+  runKatipContextT le () mempty app
+
+withKatip :: (LogEnv -> IO a) -> IO a
+withKatip app =
+  bracket createLogEnv closeScribes app
+  where
+    createLogEnv = do
+      logEnv <- initLogEnv "HSnippetbox" "dev"
+      stdoutScribe <- mkHandleScribe ColorIfTerminal stdout (permitItem InfoS) V2
+      registerScribe "stdout" stdoutScribe defaultScribeSettings logEnv
+
 -- Run like: cabal run Snippetbox-exe -- -a 4000
 main :: IO ()
 main = do
@@ -30,4 +45,5 @@ main = do
   let port = case safeRead . T.unpack <$> portText :: Maybe (Maybe Int) of
             Just (Just p) | p > 0 && p < 65536 -> p
             _ -> 3000
-  Web.Main.runWebServer port
+
+  runKatip $ Web.Main.runWebServer port

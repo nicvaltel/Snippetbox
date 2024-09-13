@@ -41,6 +41,7 @@ library
       OverloadedStrings
       ScopedTypeVariables
       NamedFieldPuns
+      TemplateHaskell
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
       base >=4.7 && <5
@@ -48,6 +49,7 @@ library
     , classy-prelude
     , containers
     , http-types
+    , katip
     , mtl
     , optparse-applicative
     , scotty
@@ -72,6 +74,7 @@ executable Snippetbox-exe
       OverloadedStrings
       ScopedTypeVariables
       NamedFieldPuns
+      TemplateHaskell
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       Snippetbox
@@ -80,6 +83,7 @@ executable Snippetbox-exe
     , classy-prelude
     , containers
     , http-types
+    , katip
     , mtl
     , optparse-applicative
     , scotty
@@ -105,6 +109,7 @@ test-suite Snippetbox-test
       OverloadedStrings
       ScopedTypeVariables
       NamedFieldPuns
+      TemplateHaskell
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       Snippetbox
@@ -113,6 +118,7 @@ test-suite Snippetbox-test
     , classy-prelude
     , containers
     , http-types
+    , katip
     , mtl
     , optparse-applicative
     , scotty

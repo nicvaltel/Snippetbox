@@ -52,6 +52,9 @@ library
     , tasty
     , text
     , time
+    , wai
+    , wai-extra
+    , wai-middleware-static
   default-language: Haskell2010
 
 executable Snippetbox-exe
@@ -79,6 +82,9 @@ executable Snippetbox-exe
     , tasty
     , text
     , time
+    , wai
+    , wai-extra
+    , wai-middleware-static
   default-language: Haskell2010
 
 test-suite Snippetbox-test
@@ -107,4 +113,7 @@ test-suite Snippetbox-test
     , tasty
     , text
     , time
+    , wai
+    , wai-extra
+    , wai-middleware-static
   default-language: Haskell2010

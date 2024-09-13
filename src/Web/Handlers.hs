@@ -14,7 +14,7 @@ home :: MonadIO m => ActionT m ()
 home = do
   addHeader "Server" "Haskell Scotty"
   html $ renderHtml homeTemplate
-  -- file "UI/html/pages/home.html"
+  -- file "ui/html/pages/home.html"
 
 
 snippetView :: MonadIO m => Text -> ActionT m ()

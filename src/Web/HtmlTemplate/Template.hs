@@ -14,6 +14,10 @@ baseTemplate titleContent navContent mainContent = H.docTypeHtml $ do
             H.title $ do
                 titleContent
                 " - Snippetbox"
+            H.link ! A.rel "stylesheet" ! A.href "/static/css/main.css"
+            H.link ! A.rel "shortcut icon" ! A.href "/static/img/favicon.ico" ! A.type_ "image/x-icon"
+            H.link ! A.rel "stylesheet" ! A.href "https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700"
+
         H.body $ do
             H.header $ do
                 H.h1 $ H.a ! A.href "/" $ "Snippetbox"
@@ -22,6 +26,8 @@ baseTemplate titleContent navContent mainContent = H.docTypeHtml $ do
             H.footer $ do
                 "Powered by "
                 H.a ! A.href "https://hackage.haskell.org/package/scotty/" $ "Scotty"
+            H.script ! A.src "/static/js/main.js" ! A.type_ "text/javascript" $ mempty
+
 
 homeTemplate :: Html
 homeTemplate = 

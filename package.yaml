@@ -30,6 +30,9 @@ dependencies:
 - tasty
 - http-types
 - blaze-html
+- wai
+- wai-extra
+- wai-middleware-static
 
 
 default-extensions:

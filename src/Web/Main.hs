@@ -1,4 +1,3 @@
-{-# LANGUAGE ScopedTypeVariables #-}
 module Web.Main where
 
 
@@ -14,7 +13,7 @@ runWebServer = do
   scottyT 3000 id routes
 
 
-routes :: (MonadIO m, MonadUnliftIO m) => ScottyT m ()
+routes :: (MonadUnliftIO m) => ScottyT m ()
 routes = do
   get "/" home
 

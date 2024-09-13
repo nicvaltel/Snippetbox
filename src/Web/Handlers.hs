@@ -6,12 +6,15 @@ import Web.Scotty.Trans
 import Test.Tasty.Options (safeRead)
 import qualified Data.Text as T
 import Network.HTTP.Types.Status ( notFound404, status201 )
+import Web.HtmlTemplate.Template (homeTemplate)
+import Text.Blaze.Html.Renderer.Text (renderHtml)
 
 
 home :: MonadIO m => ActionT m ()
 home = do
   addHeader "Server" "Haskell Scotty"
-  file "UI/html/pages/home.html"
+  html $ renderHtml homeTemplate
+  -- file "UI/html/pages/home.html"
 
 
 snippetView :: MonadIO m => Text -> ActionT m ()

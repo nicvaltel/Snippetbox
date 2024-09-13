@@ -26,6 +26,7 @@ source-repository head
 library
   exposed-modules:
       Utils.Utils
+      Web.Handlers
       Web.Main
   other-modules:
       Paths_Snippetbox

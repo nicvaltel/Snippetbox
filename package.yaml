@@ -33,12 +33,14 @@ dependencies:
 - wai
 - wai-extra
 - wai-middleware-static
+- optparse-applicative
 
 
 default-extensions:
 - NoImplicitPrelude
 - OverloadedStrings
 - ScopedTypeVariables
+- NamedFieldPuns
 
 ghc-options:
 - -Wall

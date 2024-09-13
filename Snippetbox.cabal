@@ -40,6 +40,7 @@ library
       NoImplicitPrelude
       OverloadedStrings
       ScopedTypeVariables
+      NamedFieldPuns
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
       base >=4.7 && <5
@@ -48,6 +49,7 @@ library
     , containers
     , http-types
     , mtl
+    , optparse-applicative
     , scotty
     , tasty
     , text
@@ -69,6 +71,7 @@ executable Snippetbox-exe
       NoImplicitPrelude
       OverloadedStrings
       ScopedTypeVariables
+      NamedFieldPuns
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       Snippetbox
@@ -78,6 +81,7 @@ executable Snippetbox-exe
     , containers
     , http-types
     , mtl
+    , optparse-applicative
     , scotty
     , tasty
     , text
@@ -100,6 +104,7 @@ test-suite Snippetbox-test
       NoImplicitPrelude
       OverloadedStrings
       ScopedTypeVariables
+      NamedFieldPuns
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       Snippetbox
@@ -109,6 +114,7 @@ test-suite Snippetbox-test
     , containers
     , http-types
     , mtl
+    , optparse-applicative
     , scotty
     , tasty
     , text

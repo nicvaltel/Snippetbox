@@ -7,10 +7,12 @@ import Utils.Utils (logger)
 import Web.Handlers ( home, snippetView, snippetCreate, snippetCreatePost )
 import Network.Wai.Middleware.Static (addBase, staticPolicy)
 
-runWebServer :: IO ()
-runWebServer = do
-  logger "starting server on :3000"
-  scottyT 3000 id routes
+type Port = Int
+
+runWebServer :: Port -> IO ()
+runWebServer port = do
+  logger $ "starting server on :" <> tshow port
+  scottyT port id routes
 
 
 routes :: (MonadUnliftIO m) => ScottyT m ()

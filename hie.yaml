@@ -1,0 +1,10 @@
+cradle:
+  cabal:
+    - path: "src"
+      component: "lib:Snippetbox"
+
+    - path: "app/Main.hs"
+      component: "Snippetbox:exe:Snippetbox-exe"
+
+    - path: "test"
+      component: "Snippetbox:test:Snippetbox-test"

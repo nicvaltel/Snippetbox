@@ -1,14 +1,13 @@
 module Main (main) where
 
 import ClassyPrelude
-import Web.Main
+import qualified Web.Main
 import Options.Applicative
 import qualified Data.Text as T
 import Test.Tasty.Options (safeRead)
-import Katip
+import Logger
 
-
-data Params = Params 
+newtype Params = Params 
   { portText :: Maybe Text
   }
 
@@ -24,19 +23,6 @@ cmdLineParser = execParser opts
     opts = info (mkParams <**> helper)
                 (fullDesc <> progDesc "Snippetbox server powered by Haskell")
 
-
-runKatip :: KatipContextT IO a -> IO a
-runKatip app = withKatip $ \le ->
-  runKatipContextT le () mempty app
-
-withKatip :: (LogEnv -> IO a) -> IO a
-withKatip app =
-  bracket createLogEnv closeScribes app
-  where
-    createLogEnv = do
-      logEnv <- initLogEnv "HSnippetbox" "dev"
-      stdoutScribe <- mkHandleScribe ColorIfTerminal stdout (permitItem InfoS) V2
-      registerScribe "stdout" stdoutScribe defaultScribeSettings logEnv
 
 -- Run like: cabal run Snippetbox-exe -- -a 4000
 main :: IO ()

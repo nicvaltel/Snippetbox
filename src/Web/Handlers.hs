@@ -8,13 +8,29 @@ import qualified Data.Text as T
 import Network.HTTP.Types.Status ( notFound404, status201 )
 import Web.HtmlTemplate.Template (homeTemplate)
 import Text.Blaze.Html.Renderer.Text (renderHtml)
+import System.Directory (doesFileExist)
+import Katip
 
 
-home :: MonadIO m => ActionT m ()
+checkAndRenderHtmlFile :: (KatipContext m) => FilePath -> ActionT m ()
+checkAndRenderHtmlFile path = do
+  exist <- liftIO $ doesFileExist path
+  if exist
+    then file path
+    else lift $ $(logTM) ErrorS $ ls ("Handlers home error file " <> T.pack path <> " doesn't exist")
+
+
+handler :: IOException -> IO T.Text
+handler e = do
+  putStrLn "File not found or cannot be opened."
+  return ""
+
+
+home :: (MonadIO m, KatipContext m) => ActionT m ()
 home = do
   addHeader "Server" "Haskell Scotty"
   html $ renderHtml homeTemplate
-  -- file "ui/html/pages/home.html"
+  checkAndRenderHtmlFile "ui/html/pages/home.html"
 
 
 snippetView :: MonadIO m => Text -> ActionT m ()

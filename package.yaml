@@ -35,6 +35,7 @@ dependencies:
 - wai-middleware-static
 - optparse-applicative
 - katip
+- directory
 
 default-extensions:
 - NoImplicitPrelude

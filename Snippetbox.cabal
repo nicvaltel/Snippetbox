@@ -25,6 +25,7 @@ source-repository head
 
 library
   exposed-modules:
+      Logger
       Utils.Utils
       Web.Handlers
       Web.HtmlTemplate.Template
@@ -48,6 +49,7 @@ library
     , blaze-html
     , classy-prelude
     , containers
+    , directory
     , http-types
     , katip
     , mtl
@@ -82,6 +84,7 @@ executable Snippetbox-exe
     , blaze-html
     , classy-prelude
     , containers
+    , directory
     , http-types
     , katip
     , mtl
@@ -117,6 +120,7 @@ test-suite Snippetbox-test
     , blaze-html
     , classy-prelude
     , containers
+    , directory
     , http-types
     , katip
     , mtl

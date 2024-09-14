@@ -3,21 +3,21 @@ module Web.Main where
 
 import ClassyPrelude
 import Web.Scotty.Trans
-import Utils.Utils (logger)
 import Web.Handlers ( home, snippetView, snippetCreate, snippetCreatePost )
 import Network.Wai.Middleware.Static (addBase, staticPolicy)
-import Katip ( KatipContext, ls, logTM, Severity(InfoS) )
+import Katip 
+import Logger
 
 type Port = Int
 
+  
 runWebServer :: (KatipContext m) => Port -> m ()
 runWebServer port = do
   $(logTM) InfoS $ ls ("starting server on :" <> tshow port)
-  liftIO $ logger $ "starting server on :" <> tshow port
-  scottyT port id routes
+  scottyT port runKatip routes
 
 
-routes :: (MonadUnliftIO m) => ScottyT m ()
+routes :: (MonadUnliftIO m, KatipContext m) => ScottyT m ()
 routes = do
   -- Serve static files from the "/ui/" directory
   middleware $ staticPolicy (addBase "ui/")

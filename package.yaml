@@ -36,6 +36,12 @@ dependencies:
 - optparse-applicative
 - katip
 - directory
+- postgresql-simple
+- postgresql-simple-migration
+- resource-pool
+- exceptions
+- data-has
+
 
 default-extensions:
 - NoImplicitPrelude

@@ -23,6 +23,8 @@ in
       pkgs.hpack
       pkgs.ormolu
       pkgs.haskellPackages.record-dot-preprocessor
+      pkgs.postgresql
+      pkgs.haskellPackages.postgresql-libpq
       pkgs.zlib
     ];
 

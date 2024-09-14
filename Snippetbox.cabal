@@ -26,6 +26,7 @@ source-repository head
 library
   exposed-modules:
       Logger
+      PostgreSQL.Snippetbox
       Utils.Utils
       Web.Handlers
       Web.HtmlTemplate.Template
@@ -49,11 +50,16 @@ library
     , blaze-html
     , classy-prelude
     , containers
+    , data-has
     , directory
+    , exceptions
     , http-types
     , katip
     , mtl
     , optparse-applicative
+    , postgresql-simple
+    , postgresql-simple-migration
+    , resource-pool
     , scotty
     , tasty
     , text
@@ -84,11 +90,16 @@ executable Snippetbox-exe
     , blaze-html
     , classy-prelude
     , containers
+    , data-has
     , directory
+    , exceptions
     , http-types
     , katip
     , mtl
     , optparse-applicative
+    , postgresql-simple
+    , postgresql-simple-migration
+    , resource-pool
     , scotty
     , tasty
     , text
@@ -120,11 +131,16 @@ test-suite Snippetbox-test
     , blaze-html
     , classy-prelude
     , containers
+    , data-has
     , directory
+    , exceptions
     , http-types
     , katip
     , mtl
     , optparse-applicative
+    , postgresql-simple
+    , postgresql-simple-migration
+    , resource-pool
     , scotty
     , tasty
     , text

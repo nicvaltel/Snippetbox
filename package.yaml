@@ -23,6 +23,7 @@ dependencies:
 - base >= 4.7 && < 5
 - classy-prelude
 - text
+- bytestring
 - containers
 - time
 - mtl
@@ -41,6 +42,9 @@ dependencies:
 - resource-pool
 - exceptions
 - data-has
+- dotenv
+- either
+- warp
 
 
 default-extensions:

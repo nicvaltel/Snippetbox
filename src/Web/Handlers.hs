@@ -9,7 +9,8 @@ import Network.HTTP.Types.Status ( notFound404, status201 )
 import Web.HtmlTemplate.Template (homeTemplate)
 import Text.Blaze.Html.Renderer.Text (renderHtml)
 import System.Directory (doesFileExist)
-import Katip
+import Katip ( ls, logTM, Severity(ErrorS), KatipContext )
+import Model (SnippetsRepo(getSnippet))
 
 
 checkAndRenderHtmlFile :: (KatipContext m) => FilePath -> ActionT m ()
@@ -33,11 +34,13 @@ home = do
   checkAndRenderHtmlFile "ui/html/pages/home.html"
 
 
-snippetView :: MonadIO m => Text -> ActionT m ()
+snippetView :: (MonadIO m, SnippetsRepo m) => Text -> ActionT m ()
 snippetView idx = do
   case safeRead (T.unpack idx) :: Maybe Int of
     Just idn | idn > 0 -> do
-      text $ "Display a specific snippet with ID " <> fromStrict idx
+      snippet <- lift $ getSnippet idn
+      text $ fromStrict $ "Display a specific snippet with ID " <> idx <> "\n" <> tshow snippet
+
     _ -> do
       status notFound404 
       text "Not found"

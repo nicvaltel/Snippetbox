@@ -1,64 +1,46 @@
-{-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE ConstraintKinds #-}
 module PostgreSQL.Snippetbox where
 
 
 import ClassyPrelude
 import Database.PostgreSQL.Simple
-import Database.PostgreSQL.Simple.Migration
-import Data.Pool
-import Control.Monad.Catch (MonadThrow)
-import Data.Has (Has (getter))
-
-type PG r m = (Has (Pool Connection) r, MonadReader r m, MonadIO m, MonadThrow m)
-
-data Config = Config
-  { configUrl :: ByteString
-  , configStripeCount :: Int
-  , configMaxOpenConnPerStripe :: Int
-  , configIdleConnTimeout :: Double -- in seconds NominalDiffTime
-  }
-
-withConn :: PG r m => (Connection -> IO a) -> m a
-withConn action = do
-  pool <- asks getter
-  liftIO . withResource pool $ \conn -> action conn
+import PostgreSQL.Common
+import Model
+import Katip
 
 
-
-withState :: Config -> (Pool Connection -> IO a) -> IO a
-withState cfg action =
-  withPool cfg $ \pool -> do
-    migrate pool
-    action pool
-    
-
-withPool :: Config -> (Pool Connection -> IO a) -> IO a
-withPool cfg action = do
-  putStrLn $ "configMaxOpenConnPerStripe cfg * configStripeCount cfg = " <> (tshow $ configMaxOpenConnPerStripe cfg * configStripeCount cfg)
-  bracket initPool cleanPool action
+insertSnippet :: (PG r m, KatipContext m) => Snippet -> m (Maybe SnippetId)
+insertSnippet Snippet{snippetTitle, snippetContent, snippetCreated, snippetExpires} = do
+  res <- withConn $ \con -> (query con stmt (snippetTitle, snippetContent, snippetCreated, snippetExpires) :: IO [Only SnippetId])
+  case res of
+    [Only sId] -> pure (Just sId)
+    _ -> do
+      $(logTM) ErrorS $ ls ("Should not happen: PG doesn't return snippetId" :: Text)
+      pure Nothing
   where
-    initPool = 
-      newPool $ defaultPoolConfig
-        openConn
-        closeConn
-        (configIdleConnTimeout cfg)
-        (configMaxOpenConnPerStripe cfg * configStripeCount cfg)
-
-    cleanPool = destroyAllResources
-    openConn = connectPostgreSQL (configUrl cfg)
-    closeConn = close
+    stmt = 
+      "INSERT INTO snippets (title, content, created, expires) \
+      \VALUES(?, ?, (now() at time zone 'utc'), (SELECT CURRENT_DATE + INTERVAL '? day')) returning id"
 
 
-migrate :: Pool Connection -> IO ()
-migrate pool =
-  withResource pool $ \conn -> do
-    res <- withTransaction conn (runMigrations False conn cmds)
-    case res of
-      MigrationError err -> throwString err
-      _ -> pure ()
+getSnippet :: (PG r m, KatipContext m) => SnippetId -> m (Maybe Snippet)
+getSnippet snippetId = do
+  res <- withConn $ \con -> (query con stmt (Only snippetId) :: IO [(Text, Text, UTCTime, UTCTime)])
+  case res of
+    [(snippetTitle, snippetContent, snippetCreated, snippetExpires)] -> 
+      pure (Just Snippet{snippetId, snippetTitle, snippetContent, snippetCreated, snippetExpires})
+    _ -> do
+      $(logTM) InfoS $ ls ("getSnippet for non existing snippetId: " <> tshow snippetId :: Text)
+      pure Nothing
   where
-    cmds =
-      [ MigrationInitialization
-      , MigrationDirectory "src/PostgreSQL/Migrations"
-      ]
+    stmt = 
+      "SELECT title, content, created, expires FROM snippets \
+      \WHERE expires > now() AND id = ?"
+
+
+latestSnippets :: (PG r m, KatipContext m) => m [Snippet]
+latestSnippets = pure []
+
+

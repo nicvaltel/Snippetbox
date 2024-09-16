@@ -10,7 +10,7 @@ import Web.HtmlTemplate.Template (homeTemplate)
 import Text.Blaze.Html.Renderer.Text (renderHtml)
 import System.Directory (doesFileExist)
 import Katip ( ls, logTM, Severity(ErrorS), KatipContext )
-import Model (SnippetsRepo(getSnippet))
+import Model (SnippetsRepo(getSnippet, latestSnippets))
 
 
 checkAndRenderHtmlFile :: (KatipContext m) => FilePath -> ActionT m ()
@@ -27,11 +27,13 @@ handler e = do
   return ""
 
 
-home :: (MonadIO m, KatipContext m) => ActionT m ()
+home :: (MonadIO m, KatipContext m, SnippetsRepo m) => ActionT m ()
 home = do
   addHeader "Server" "Haskell Scotty"
-  html $ renderHtml homeTemplate
-  checkAndRenderHtmlFile "ui/html/pages/home.html"
+  snippets <- lift latestSnippets
+  text $ fromStrict $ concatMap (\s -> tshow s <> "\n") snippets
+  -- html $ renderHtml homeTemplate
+  -- checkAndRenderHtmlFile "ui/html/pages/home.html"
 
 
 snippetView :: (MonadIO m, SnippetsRepo m) => Text -> ActionT m ()

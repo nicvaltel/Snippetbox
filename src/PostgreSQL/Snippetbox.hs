@@ -40,7 +40,16 @@ getSnippet snippetId = do
       \WHERE expires > now() AND id = ?"
 
 
-latestSnippets :: (PG r m, KatipContext m) => m [Snippet]
-latestSnippets = pure []
+latestSnippets :: (PG r m) => m [Snippet]
+latestSnippets = do
+  res <- withConn $ \con -> (query_ con stmt :: IO [(Int, Text, Text, UTCTime, UTCTime)])
+  pure $ map mkSnippet res
+  where
+    stmt =
+      "SELECT id, title, content, created, expires FROM snippets \
+      \WHERE expires > now() ORDER BY id DESC LIMIT 10"
+    
+    mkSnippet (snippetId, snippetTitle, snippetContent, snippetCreated, snippetExpires) =
+      Snippet{snippetId, snippetTitle, snippetContent, snippetCreated, snippetExpires}
 
 

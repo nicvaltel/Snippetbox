@@ -30,43 +30,66 @@ baseTemplate titleContent navContent mainContent = H.docTypeHtml $ do
         H.a ! A.href "https://hackage.haskell.org/package/scotty/" $ "Scotty"
       H.script ! A.src "/static/js/main.js" ! A.type_ "text/javascript" $ mempty
 
-homeTemplate :: Html
-homeTemplate =
-  let title = "Home"
-      content = do
+
+homeTemplate :: [Snippet] -> Html
+homeTemplate snippets = baseTemplate "Home" navTemplate content
+  where 
+    content = do
         H.h2 "Latest Snippets"
-        H.p "There's nothing to see here yet!"
-   in baseTemplate title navTemplate content
+        case snippets of
+          [] ->
+            H.p "There's nothing to see here yet!"
+          _ -> do
+            H.table $ do
+              H.tr $ do
+                H.th "Title"
+                H.th "Created"
+                H.th "ID"
+              mapM_ renderSnippetRow snippets
+    
+    renderSnippetRow :: Snippet -> Html
+    renderSnippetRow Snippet{snippetId, snippetTitle, snippetCreated} =
+      H.tr $ do
+        H.td $ H.a ! A.href (H.toValue $ "/snippet/view/" <> show snippetId) $ H.toHtml snippetTitle
+        H.td $ H.toHtml $ formatUTCTime snippetCreated
+        H.td $ "#" >> H.toHtml (show snippetId)
+            
 
 navTemplate :: Html
 navTemplate = H.nav $ do
   H.a ! A.href "/" $ "Home"
 
+
 veiwTemplate :: Snippet -> Html
-veiwTemplate snippet = baseTemplate "Snippet" navTemplate snippetTemplate
+veiwTemplate Snippet{snippetId, snippetTitle, snippetContent, snippetCreated, snippetExpires} = 
+  baseTemplate "Snippet" navTemplate content
   where
-    snippetTemplate :: Html
-    snippetTemplate =
+    content :: Html
+    content =
       H.div ! A.class_ "snippet" $ do
         H.div ! A.class_ "metadata" $ do
-          H.strong $ H.toHtml (snippetTitle snippet)
-          H.span $ "#" >> H.toHtml (show $ snippetId snippet)
-        H.pre $ H.code $ H.toHtml (replaceNewlines $ snippetContent snippet)
-        -- H.div $ renderWithNewlines (snippetContent snippet)
+          H.strong $ H.toHtml snippetTitle
+          H.span $ "#" >> H.toHtml (show snippetId)
+        H.pre $ H.code $ H.toHtml (replaceNewlines snippetContent)
+        -- H.div $ renderWithNewlines snippetContent
         H.div ! A.class_ "metadata" $ do
-          H.time $ "Created: " >> H.toHtml (formatUTCTime $ snippetCreated snippet)
-          H.time $ "Expires: " >> H.toHtml (formatUTCTime $ snippetExpires snippet)
+          H.time $ "Created: " >> H.toHtml (formatUTCTime snippetCreated)
+          H.time $ "Expires: " >> H.toHtml (formatUTCTime snippetExpires)
+
 
 formatUTCTime :: UTCTime -> String
 formatUTCTime = formatTime defaultTimeLocale "%Y-%-m-%-d"
 
+
 replaceNewlines :: Text -> Text
 replaceNewlines = T.replace "\\n" "\n"
+
 
 renderWithNewlines :: Text -> Html
 renderWithNewlines text = mapM_ renderPart (T.splitOn "\n" text)
   where
     renderPart t = H.toHtml t >> H.br
+
 
 -- Example usage
 pageExample :: Html

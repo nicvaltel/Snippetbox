@@ -21,19 +21,11 @@ checkAndRenderHtmlFile path = do
     else lift $ $(logTM) ErrorS $ ls ("Handlers home error file " <> T.pack path <> " doesn't exist")
 
 
-handler :: IOException -> IO T.Text
-handler e = do
-  putStrLn "File not found or cannot be opened."
-  return ""
-
-
-home :: (MonadIO m, KatipContext m, SnippetsRepo m) => ActionT m ()
+home :: (MonadIO m, SnippetsRepo m) => ActionT m ()
 home = do
   addHeader "Server" "Haskell Scotty"
   snippets <- lift latestSnippets
-  text $ fromStrict $ concatMap (\s -> tshow s <> "\n") snippets
-  -- html $ renderHtml homeTemplate
-  -- checkAndRenderHtmlFile "ui/html/pages/home.html"
+  html $ renderHtml $ homeTemplate snippets
 
 
 snippetView :: (MonadIO m, SnippetsRepo m) => Text -> ActionT m ()

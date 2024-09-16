@@ -11,29 +11,25 @@ import Web.Scotty.Trans
       middleware,
       scottyAppT )
 import Web.Handlers ( home, snippetView, snippetCreate, snippetCreatePost )
-import Network.Wai.Middleware.Static (addBase, staticPolicy)
+import Network.Wai.Middleware.Static (addBase, staticPolicy, initCaching, CachingStrategy (PublicStaticCaching), CacheContainer, staticPolicy')
 import Katip ( ls, logTM, Severity(InfoS), KatipContext ) 
 import Logger ( runKatip )
 import Model (SnippetsRepo)
 import Network.Wai (Response, Application)
 import qualified Network.Wai.Handler.Warp as Warp
+import qualified Network.Wai.Middleware.Gzip as GZ
 
 
 type Port = Int
-  
--- runWebServer :: (KatipContext m) => Port -> m ()
--- runWebServer port = do
---   $(logTM) InfoS $ ls ("starting server on :" <> tshow port)
---   scottyT port runKatip routes
 
 
 mainWeb :: 
   (MonadUnliftIO m, KatipContext m, SnippetsRepo m) =>
   (m Response -> IO Response) -> IO Application
 mainWeb runner = do
-  -- cacheContainer <- initCaching PublicStaticCaching
-  -- scottyAppT defaultOptions runner $ routes cacheContainer
-  scottyAppT defaultOptions runner routes
+  cacheContainer <- initCaching PublicStaticCaching
+  scottyAppT defaultOptions runner $ routes cacheContainer
+  -- scottyAppT defaultOptions runner routes
 
 mainRunWebServer :: (MonadUnliftIO m, KatipContext m, SnippetsRepo m) =>
   Int -> (m Response -> IO Response) -> IO ()
@@ -44,10 +40,14 @@ mainRunWebServer port runner = do
 
 
 
-routes :: (MonadUnliftIO m, KatipContext m, SnippetsRepo m) => ScottyT m ()
-routes = do
+routes :: (MonadUnliftIO m, KatipContext m, SnippetsRepo m) => CacheContainer -> ScottyT m ()
+routes cachingStrategy = do
+  
+  middleware $ GZ.gzip $ GZ.def {GZ.gzipFiles = GZ.GzipCompress}
+
   -- Serve static files from the "/ui/" directory
-  middleware $ staticPolicy (addBase "ui/")
+  middleware $ staticPolicy' cachingStrategy (addBase "ui/")
+  -- middleware $ staticPolicy (addBase "ui/")
 
   get "/" home
 

@@ -6,7 +6,7 @@ import Web.Scotty.Trans
 import Test.Tasty.Options (safeRead)
 import qualified Data.Text as T
 import Network.HTTP.Types.Status ( notFound404, status201 )
-import Web.HtmlTemplate.Template (homeTemplate)
+import Web.HtmlTemplate.Template
 import Text.Blaze.Html.Renderer.Text (renderHtml)
 import System.Directory (doesFileExist)
 import Katip ( ls, logTM, Severity(ErrorS), KatipContext )
@@ -40,8 +40,13 @@ snippetView :: (MonadIO m, SnippetsRepo m) => Text -> ActionT m ()
 snippetView idx = do
   case safeRead (T.unpack idx) :: Maybe Int of
     Just idn | idn > 0 -> do
-      snippet <- lift $ getSnippet idn
-      text $ fromStrict $ "Display a specific snippet with ID " <> idx <> "\n" <> tshow snippet
+      maySnippet <- lift $ getSnippet idn
+      case maySnippet of
+        Just snippet -> do
+          html $ renderHtml $ veiwTemplate snippet
+        Nothing -> do
+          status notFound404
+          text "Not found" -- TODO process some log message
 
     _ -> do
       status notFound404 

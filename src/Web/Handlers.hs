@@ -38,7 +38,6 @@ checkAndRenderHtmlTemplate htmlTemplate namespace mkErrMsg = do
 
 home :: (MonadUnliftIO m, SnippetsRepo m, KatipContext m, CommonData m) => ActionT m ()
 home = do
-  addHeader "Server" "Haskell Scotty"
   snippets <- lift latestSnippets
   year <- lift getCurrentYear
   -- html $ renderHtml $ homeTemplate year snippets

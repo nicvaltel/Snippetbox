@@ -5,12 +5,14 @@ import ClassyPrelude
 import Web.Scotty.Trans
 import Test.Tasty.Options (safeRead)
 import qualified Data.Text as T
-import Network.HTTP.Types.Status ( notFound404, status201 )
+import qualified Data.Text.Lazy as TL
+import Network.HTTP.Types.Status ( notFound404, status201, internalServerError500 )
 import Web.HtmlTemplate.Template
 import Text.Blaze.Html.Renderer.Text (renderHtml)
 import System.Directory (doesFileExist)
-import Katip ( ls, logTM, Severity(ErrorS), KatipContext )
+import Katip ( ls, logTM, Severity(..), KatipContext, showLS, katipAddNamespace, logFM, Namespace )
 import Model (SnippetsRepo(getSnippet, latestSnippets))
+import Text.Blaze.Html (Html)
 
 
 checkAndRenderHtmlFile :: (KatipContext m) => FilePath -> ActionT m ()
@@ -20,26 +22,46 @@ checkAndRenderHtmlFile path = do
     then file path
     else lift $ $(logTM) ErrorS $ ls ("Handlers home error file " <> T.pack path <> " doesn't exist")
 
+checkAndRenderHtmlTemplate :: (KatipContext m, MonadUnliftIO m) => Html -> Namespace -> (SomeException -> Text) -> ActionT m ()
+checkAndRenderHtmlTemplate htmlTemplate namespace mkErrMsg = do
+  result :: Either SomeException TL.Text <- try (evaluate $ force $ renderHtml htmlTemplate)
+  case result of
+    Left err -> do
+      lift $ katipAddNamespace namespace $ 
+        logFM ErrorS (showLS $ mkErrMsg err)
+      -- lift $ logWithFunctionName ErrorS "Handlers snippetView" ("renderHtml (viewTemplate snippet) error: " <> showLS (tshow err))
+      -- lift $ $(logTM) ErrorS $ ls ("Handlers snippetView: renderHtml (viewTemplate snippet) error: " <> show err)
+      status internalServerError500
+      text $ "An error occurred: " <> TL.pack (show err)
+    Right txt -> do
+      html txt
 
-home :: (MonadIO m, SnippetsRepo m) => ActionT m ()
+home :: (MonadUnliftIO m, SnippetsRepo m, KatipContext m) => ActionT m ()
 home = do
   addHeader "Server" "Haskell Scotty"
   snippets <- lift latestSnippets
   html $ renderHtml $ homeTemplate snippets
+  checkAndRenderHtmlTemplate
+    (homeTemplate snippets)
+    "Handlers home"
+    (\err -> "renderHtml (homeTemplate snippets) error: " <> tshow err)
 
 
-snippetView :: (MonadIO m, SnippetsRepo m) => Text -> ActionT m ()
+snippetView :: (MonadUnliftIO m, SnippetsRepo m, KatipContext m) => Text -> ActionT m ()
 snippetView idx = do
   case safeRead (T.unpack idx) :: Maybe Int of
     Just idn | idn > 0 -> do
       maySnippet <- lift $ getSnippet idn
       case maySnippet of
         Just snippet -> do
-          html $ renderHtml $ veiwTemplate snippet
+          -- html $ renderHtml $ veiwTemplate snippet
+          checkAndRenderHtmlTemplate 
+            (veiwTemplate snippet)
+            "Handlers snippetView"
+            (\err -> "renderHtml (viewTemplate snippet) error: " <> tshow err <> " ; snippetId = " <> tshow idx)
         Nothing -> do
           status notFound404
-          text "Not found" -- TODO process some log message
-
+          text "Not found"
     _ -> do
       status notFound404 
       text "Not found"

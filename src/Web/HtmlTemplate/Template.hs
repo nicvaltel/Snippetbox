@@ -6,7 +6,7 @@ import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
 import Model (Snippet (..))
 import qualified Data.Text as T
-import Data.Time.Format (formatTime, defaultTimeLocale)
+
 
 baseTemplate :: Html -> Html -> Html -> Html
 baseTemplate titleContent navContent mainContent = H.docTypeHtml $ do
@@ -70,8 +70,8 @@ veiwTemplate Snippet{snippetId, snippetTitle, snippetContent, snippetCreated, sn
         H.div ! A.class_ "metadata" $ do
           H.strong $ H.toHtml snippetTitle
           H.span $ "#" >> H.toHtml (show snippetId)
+        when (snippetId == 2) $ error "Delibirate error!" -- TODO Important! Remove this test string
         H.pre $ H.code $ H.toHtml (replaceNewlines snippetContent)
-        -- H.div $ renderWithNewlines snippetContent
         H.div ! A.class_ "metadata" $ do
           H.time $ "Created: " >> H.toHtml (formatUTCTime snippetCreated)
           H.time $ "Expires: " >> H.toHtml (formatUTCTime snippetExpires)

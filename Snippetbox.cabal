@@ -68,6 +68,7 @@ library
     , resource-pool
     , scotty
     , tasty
+    , template-haskell
     , text
     , time
     , wai
@@ -112,6 +113,7 @@ executable Snippetbox-exe
     , resource-pool
     , scotty
     , tasty
+    , template-haskell
     , text
     , time
     , wai
@@ -157,6 +159,7 @@ test-suite Snippetbox-test
     , resource-pool
     , scotty
     , tasty
+    , template-haskell
     , text
     , time
     , wai

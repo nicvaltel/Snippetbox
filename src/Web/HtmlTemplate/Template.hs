@@ -79,7 +79,7 @@ veiwTemplate year Snippet{snippetId, snippetTitle, snippetContent, snippetCreate
 
 
 formatUTCTime :: UTCTime -> String
-formatUTCTime = formatTime defaultTimeLocale "%Y-%-m-%-d"
+formatUTCTime = formatTime defaultTimeLocale "%d %b %Y at %H:%M"
 
 
 replaceNewlines :: Text -> Text

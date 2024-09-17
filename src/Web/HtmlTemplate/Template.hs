@@ -70,7 +70,6 @@ veiwTemplate Snippet{snippetId, snippetTitle, snippetContent, snippetCreated, sn
         H.div ! A.class_ "metadata" $ do
           H.strong $ H.toHtml snippetTitle
           H.span $ "#" >> H.toHtml (show snippetId)
-        when (snippetId == 2) $ error "Delibirate error!" -- TODO Important! Remove this test string
         H.pre $ H.code $ H.toHtml (replaceNewlines snippetContent)
         H.div ! A.class_ "metadata" $ do
           H.time $ "Created: " >> H.toHtml (formatUTCTime snippetCreated)

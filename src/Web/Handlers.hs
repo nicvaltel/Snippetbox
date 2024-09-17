@@ -11,7 +11,7 @@ import Web.HtmlTemplate.Template
 import Text.Blaze.Html.Renderer.Text (renderHtml)
 import System.Directory (doesFileExist)
 import Katip ( ls, logTM, Severity(..), KatipContext, showLS, katipAddNamespace, logFM, Namespace )
-import Model (SnippetsRepo(getSnippet, latestSnippets))
+import Model (SnippetsRepo(..), CommonData (..))
 import Text.Blaze.Html (Html)
 
 
@@ -36,27 +36,29 @@ checkAndRenderHtmlTemplate htmlTemplate namespace mkErrMsg = do
     Right txt -> do
       html txt
 
-home :: (MonadUnliftIO m, SnippetsRepo m, KatipContext m) => ActionT m ()
+home :: (MonadUnliftIO m, SnippetsRepo m, KatipContext m, CommonData m) => ActionT m ()
 home = do
   addHeader "Server" "Haskell Scotty"
   snippets <- lift latestSnippets
-  html $ renderHtml $ homeTemplate snippets
+  year <- lift getCurrentYear
+  -- html $ renderHtml $ homeTemplate year snippets
   checkAndRenderHtmlTemplate
-    (homeTemplate snippets)
+    (homeTemplate year snippets)
     "Handlers home"
     (\err -> "renderHtml (homeTemplate snippets) error: " <> tshow err)
 
 
-snippetView :: (MonadUnliftIO m, SnippetsRepo m, KatipContext m) => Text -> ActionT m ()
+snippetView :: (MonadUnliftIO m, SnippetsRepo m, KatipContext m, CommonData m) => Text -> ActionT m ()
 snippetView idx = do
   case safeRead (T.unpack idx) :: Maybe Int of
     Just idn | idn > 0 -> do
       maySnippet <- lift $ getSnippet idn
       case maySnippet of
         Just snippet -> do
-          -- html $ renderHtml $ veiwTemplate snippet
+          year <- lift getCurrentYear
+          -- html $ renderHtml $ veiwTemplate year snippet
           checkAndRenderHtmlTemplate 
-            (veiwTemplate snippet)
+            (veiwTemplate year snippet)
             "Handlers snippetView"
             (\err -> "renderHtml (viewTemplate snippet) error: " <> tshow err <> " ; snippetId = " <> tshow idx)
         Nothing -> do

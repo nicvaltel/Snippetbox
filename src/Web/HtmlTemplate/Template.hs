@@ -6,10 +6,11 @@ import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
 import Model (Snippet (..))
 import qualified Data.Text as T
+import Data.Time (Year)
 
 
-baseTemplate :: Html -> Html -> Html -> Html
-baseTemplate titleContent navContent mainContent = H.docTypeHtml $ do
+baseTemplate :: Year -> Html -> Html -> Html -> Html
+baseTemplate year titleContent navContent mainContent = H.docTypeHtml $ do
   H.html ! A.lang "en" $ do
     H.head $ do
       H.meta ! A.charset "utf-8"
@@ -28,11 +29,12 @@ baseTemplate titleContent navContent mainContent = H.docTypeHtml $ do
       H.footer $ do
         "Powered by "
         H.a ! A.href "https://hackage.haskell.org/package/scotty/" $ "Scotty"
+        " in " <> H.text (tshow year)
       H.script ! A.src "/static/js/main.js" ! A.type_ "text/javascript" $ mempty
 
 
-homeTemplate :: [Snippet] -> Html
-homeTemplate snippets = baseTemplate "Home" navTemplate content
+homeTemplate :: Year -> [Snippet] -> Html
+homeTemplate year snippets = baseTemplate year "Home" navTemplate content
   where 
     content = do
         H.h2 "Latest Snippets"
@@ -60,9 +62,9 @@ navTemplate = H.nav $ do
   H.a ! A.href "/" $ "Home"
 
 
-veiwTemplate :: Snippet -> Html
-veiwTemplate Snippet{snippetId, snippetTitle, snippetContent, snippetCreated, snippetExpires} = 
-  baseTemplate "Snippet" navTemplate content
+veiwTemplate :: Year -> Snippet -> Html
+veiwTemplate year Snippet{snippetId, snippetTitle, snippetContent, snippetCreated, snippetExpires} = 
+  baseTemplate year "Snippet" navTemplate content
   where
     content :: Html
     content =
@@ -92,4 +94,4 @@ renderWithNewlines text = mapM_ renderPart (T.splitOn "\n" text)
 
 -- Example usage
 pageExample :: Html
-pageExample = baseTemplate (H.toHtml ("My Title" :: Text)) navTemplate (H.toHtml ("This is the main content" :: Text))
+pageExample = baseTemplate 2024 (H.toHtml ("My Title" :: Text)) navTemplate (H.toHtml ("This is the main content" :: Text))

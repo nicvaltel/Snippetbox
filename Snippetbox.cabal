@@ -35,6 +35,7 @@ library
       Web.HtmlTemplate.Template
       Web.Main
       Web.TestBlaze
+      Web.ValidateForm
   other-modules:
       Paths_Snippetbox
   autogen-modules:

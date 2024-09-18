@@ -11,8 +11,10 @@ import Web.HtmlTemplate.Template
 import Text.Blaze.Html.Renderer.Text (renderHtml)
 import System.Directory (doesFileExist)
 import Katip ( ls, logTM, Severity(..), KatipContext, showLS, katipAddNamespace, logFM, Namespace )
-import Model (SnippetsRepo(..), CommonData (..))
+import Model (SnippetsRepo(..), CommonData (..), SnippetCreateForm (..), defaultSnippetCreateForm)
 import Text.Blaze.Html (Html)
+import Web.ValidateForm (validateCreateForm)
+import qualified Data.Map as M
 
 
 checkAndRenderHtmlFile :: (KatipContext m) => FilePath -> ActionT m ()
@@ -68,12 +70,30 @@ snippetView idx = do
       text "Not found"
 
 
-snippetCreate :: MonadIO m => ActionT m ()
+snippetCreate :: (MonadUnliftIO m, KatipContext m, CommonData m) => ActionT m ()
 snippetCreate = do
-  text "Display a form for creating a new snippet..."
+  year <- lift getCurrentYear
+  checkAndRenderHtmlTemplate
+    (createTemplate year defaultSnippetCreateForm)
+    "Handlers snippetCreate"
+    (\err -> "renderHtml (snippetCreate) error: " <> tshow err)
 
 
-snippetCreatePost :: MonadIO m => ActionT m ()
+
+snippetCreatePost :: (MonadUnliftIO m, CommonData m, KatipContext m) => ActionT m ()
 snippetCreatePost = do
-  status status201
-  text "Save a new snippet..."
+  title :: Text <- formParam "title" `catch` (\(_ :: SomeException) -> pure "")
+  content :: Text <- formParam "content" `catch` (\(_ :: SomeException) -> pure "")
+  expires :: String <- formParam "expires" `catch` (\(_ :: SomeException) -> pure "")
+  let scForm = validateCreateForm title content expires
+  year <- lift getCurrentYear
+  if M.null (scfFieldErrors scForm)
+    then do 
+      status status201
+      text "Snippet created successfully!" -- TODO implement adding to the DB
+    else do 
+      checkAndRenderHtmlTemplate
+        (createTemplate year scForm)
+        "Handlers snippetCreate"
+        (\err -> "renderHtml (snippetCreate) error: " <> tshow err)
+
